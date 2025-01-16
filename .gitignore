@@ -2,5 +2,5 @@ sample_dataset_with_image/
 sample_raw_radar_dataset_without_image/
 sample_raw_radar_dataset_without_image_original/
 venv/
-/__pycache__/
+__pycache__/
 spectrogram/

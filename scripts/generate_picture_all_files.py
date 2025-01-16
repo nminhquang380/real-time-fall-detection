@@ -1,6 +1,7 @@
 import os
 import shutil
 from generate_picture import generate_pic
+from generate_picture_refactored import ImageGenerator
 import argparse
 
 parser = argparse.ArgumentParser(description="LearnToPayAttn-CT2D")
@@ -9,32 +10,35 @@ parser.add_argument('--output', type=str, required=True, help='Path to the outpu
 
 args = parser.parse_args()
 
-
-def get_all_files(dir_path):
-    file_list = []
-    for root, _, files in os.walk(dir_path):
-        for file in files:
-            file_list.append(os.path.join(root, file))
-    return file_list
+def get_subfolders(dir_path):
+    """
+    Get a list of all subfolder paths in the base directory.
+    """
+    subfolders = [os.path.join(dir_path, d) for d in os.listdir(dir_path) if os.path.isdir(os.path.join(dir_path, d))]
+    return subfolders
 
 def generate_pic_all_files(base_dir=args.input, des_dir=args.output):
-    # Recursively traverse all files in the directory and subdirectories
-    file_list = get_all_files(base_dir)
+    """
+    Traverse subfolders in the base directory, create corresponding subfolders in the destination,
+    and generate images for each subfolder.
+    """
+    # Get all subfolders in the base directory
+    subfolders = get_subfolders(base_dir)
 
-    # Filter files based on whether the filename contains "I_raw"
-    filtered_files = [f for f in file_list if 'I_raw' in os.path.basename(f)]
+    for subfolder in subfolders:
+            # Extract the subfolder name
+            subfolder_name = os.path.basename(subfolder)
 
-    # Remove the characters after the last backslash (\) in each file path
-    filtered_files = [os.path.dirname(f) for f in filtered_files]
+            # Create the corresponding subfolder in the destination directory
+            output_subfolder = os.path.join(des_dir, subfolder_name)
+            os.makedirs(output_subfolder, exist_ok=True)
 
-    print("Files with 'I_raw' in their names:")
-    print(filtered_files)
+            print(f"Processing: {subfolder} -> {output_subfolder}")
 
-    for current_file in filtered_files:
-        generate_pic(current_file, des_dir)
+            # Call the generate_picture function for the current subfolder
+            generate_pic(subfolder, output_subfolder)
         
 if __name__ == "__main__":
     # base_dir = r'data\raw_signal_data'
     # destination_dir = r'data\image_data\quang'
-    # generate_pic_all_files(base_dir, destination_dir)
     generate_pic_all_files()
